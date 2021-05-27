@@ -4,6 +4,10 @@
 #That would be very neat if the process of getting all the files in the right order wasn't
 #so convoluted. The purpose of this script is to make the latter as easy as possible.
 
+#IMPORTANT: the execution of this code generates a lot of temporary files that are later
+#removed (by-product of using ESOREX). You are adviced to run this python script in an
+#empty work folder (not the output folder).
+
 #First, you need to make sure that both ESOREX and the ESPRESSO pipeline are installed on
 #your system. To check whether ESOREX is installed correctly, you can open a terminal and type:
 
@@ -42,9 +46,10 @@
 #2) Request all these Science frames, and enable the calselector to provide them + associated raw calibrations.
 #3) Download these to a single folder (for an exoplanet transit observation, this can easily amount to >10GB).
 #4) Below (at the end of the script), provide the path to this folder as inpath, and the path to a folder as outpath.
-#5) For some reason, the calselector does not select the CONTAM_FP calibration files. These are obtained every night in 1x1 and 2x1 binning
+#5) For some reason, the calselector does not select the CONTAM,OFF,FP calibration files. These are obtained every night in 1x1 and 2x1 binning
 # modes. To download these, you need to query the entire night of observations with the Raw data selection form, and find it (ctrl-F) to
-#request and download it manually.
+#request and download it manually. Notice that there might be multiple CONTAM,OFF,FP files, but only one can
+#be used. Likely either will work (as long as they are in the right binning).
 #5) Make sure that your calib folder is set correctly, and run this script.
 
 
@@ -279,6 +284,10 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         sys.exit()
     if len(contam_list) == 0:
         print('ERROR: No CONTAM,OFF,FP frames detected. Check that you downloaded them properly.')
+        sys.exit()
+    if len(contam_list) > 1:
+        print('ERROR: More than one CONTAM,OFF,FP frames detected. Please remove so you have only one left. The files dected are:')
+        print(contam_list)
         sys.exit()
     if len(eff_list) == 0:
         print('ERROR: No EFF,SKY,SKY frames detected. Check that you downloaded them properly.')
