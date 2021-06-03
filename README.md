@@ -1,4 +1,4 @@
-# ESPRESSO_pipeline
+# ESPRESSO pipeline
 A script that executes the ESPRESSO-pipeline using Esorex on time-series observations.
 
 
