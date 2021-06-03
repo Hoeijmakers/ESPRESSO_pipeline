@@ -970,7 +970,12 @@ def reduce_science(outpath):
         move_to('ESPRESSO_S2D_BLAZE_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_BLAZE_B.fits')
         move_to('ESPRESSO_S2D_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_SKYSUB_A.fits')
     
-
+        if sky:#The following files dont exist if spectra were taken with the FP on fiber B:
+            move_to('ESPRESSO_CCF_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_B.fits')
+            move_to('ESPRESSO_CCF_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_SKYSUB_A.fits')
+            move_to('ESPRESSO_S2D_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_SKYSUB_A.fits')
+            move_to('ESPRESSO_S1D_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S1D_SKYSUB_A.fits')
+            move_to('ESPRESSO_S1D_SKYSUB_FLUXCAL_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S1D_SKYSUB_FLUXCAL_A.fits')
 
 
 
