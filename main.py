@@ -109,7 +109,7 @@
 
 
 
-#==============================================================================================# 
+#==============================================================================================#
 #                             Start of function definitions
 #==============================================================================================#
 
@@ -117,16 +117,16 @@
 def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     """This script creates the file association lists (sof files) that are the main inputs
     to the pipeline recipes when called with esorex. The user provides the path of the raw data files
-    (inpath) as downloaded from the ESO archive. These must be sorted by instrument mode 
-    (i.e. resolution and binning). The user provides the output path, to which the sof files will be 
-    written (outpath).  This is also the location in which the pipeline reduction products will be 
-    stored. The user provies the path to the static calibration files (path_cdb) which are 
-    installed with the pipeline. By default this could be something like: 
+    (inpath) as downloaded from the ESO archive. These must be sorted by instrument mode
+    (i.e. resolution and binning). The user provides the output path, to which the sof files will be
+    written (outpath).  This is also the location in which the pipeline reduction products will be
+    stored. The user provies the path to the static calibration files (path_cdb) which are
+    installed with the pipeline. By default this could be something like:
     /home/jens/esorex_install_folder/calib/espdr-1.2.2/cal/. Finally, the user manually provides the
     binning factor as a string (binning), as a string. Valid inputs are '1x1' or '2x1'. Other entries
     will result in a crash when executing the recipes.
 
-    This recipe assumes that the object is taken with fiber B on sky. If fiber B is FB, change the sky keyword to False. 
+    This recipe assumes that the object is taken with fiber B on sky. If fiber B is FB, change the sky keyword to False.
 
     """
     import os
@@ -139,12 +139,12 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     #Start by defining the input and output paths:
 
     path_out=outpath
-    
+
     try:
         os.mkdir(outpath)
     except:
         pass
-    
+
     #The rest works automatically.
     file_list = os.listdir(inpath)
     file_list = [str(i) for i in Path(inpath).glob('ESPRE*.fits')]
@@ -165,7 +165,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         with fitsio.open(file) as fu:
             static_type_list.append(fu[0].header['ESO PRO CATG'])
 
-            
+
     static_dict = dict()#We save the statics in a dictionary so that they can be parsed easily later.
     for i,s in enumerate(static_type_list):
         if s == 'MASK_TABLE':
@@ -198,8 +198,8 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     else:
         object_keyword='OBJECT,FP'
         object_tag='OBJ_FP'
-        
-        
+
+
     #Define the lists in which the frame types will be sorted.
     bias_list=[]
     dark_list=[]
@@ -236,7 +236,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         if type_list[i] == 'FLAT,OFF,LAMP' and binx_list[i] == binx and biny_list[i] == biny:
             flatB_list = np.append(flatB_list,fits_list[i]+'   '+'FLAT_B')
         if type_list[i] == 'WAVE,FP,FP' and binx_list[i] == binx and biny_list[i] == biny:
-            FP_FP_list = np.append(FP_FP_list,fits_list[i]+'   '+'FP_FP')    
+            FP_FP_list = np.append(FP_FP_list,fits_list[i]+'   '+'FP_FP')
         if type_list[i] == 'WAVE,FP,THAR' and binx_list[i] == binx and biny_list[i] == biny:
             FP_TH_list = np.append(FP_TH_list,fits_list[i]+'   '+'FP_THAR')
         if type_list[i] == 'WAVE,THAR,FP' and binx_list[i] == binx and biny_list[i] == biny:
@@ -272,7 +272,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         sys.exit()
     if len(flatB_list) == 0:
         print('ERROR: No FLAT,OFF,LAMP frames detected. Check that you downloaded them properly.')
-        sys.exit()       
+        sys.exit()
     if len(FP_FP_list) == 0:
         print('ERROR: No WAVE,FP,FP frames detected. Check that you downloaded them properly.')
         sys.exit()
@@ -308,9 +308,9 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         sys.exit()
 
 
-        
 
-    #==============================================================================================#           
+
+    #==============================================================================================#
     #The following blocks write out the SOF files for the different frame types.
     #Big wall of text with a lot of repetition but the functionality should be clear.
     #All of this comes from the ESPRESSO Pipeline manual v1.2.2, modulo the typos
@@ -324,11 +324,13 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     for line in bias_list:
         outF.write(line)
         outF.write("\n")
+    import pdb
+    pdb.set_trace()
     outF.write(static_dict['CCD_GEOM']+'   CCD_GEOM')
     outF.write("\n")
     outF.write(static_dict['INST_CONFIG']+'   INST_CONFIG')
     outF.close()
-    
+
     outF = open(outpath+"DARK.txt", "w")
     for line in dark_list:
         outF.write(line)
@@ -339,7 +341,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.close()
-    
+
     outF = open(outpath+"LED.txt", "w")
     for line in LED_list:
         outF.write(line)
@@ -354,7 +356,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.close()
-    
+
     outF = open(outpath+"ORDERDEF.txt", "w")
     for line in orderdefA_list:
         outF.write(line)
@@ -372,8 +374,8 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.close()
-    
-    
+
+
     outF = open(outpath+"FLAT.txt", "w")
     for line in flatA_list:
         outF.write(line)
@@ -410,7 +412,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -442,7 +444,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -480,10 +482,10 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(static_dict['STATIC_WAVE_MATRIX_A']+'   STATIC_WAVE_MATRIX_A')
     outF.write("\n")
-    outF.write(static_dict['STATIC_WAVE_MATRIX_B']+'   STATIC_WAVE_MATRIX_B')   
+    outF.write(static_dict['STATIC_WAVE_MATRIX_B']+'   STATIC_WAVE_MATRIX_B')
     outF.close()
 
-    
+
     outF = open(outpath+"WAVE_TH_FP.txt", "w")
     for line in TH_FP_list:
         outF.write(line)
@@ -494,7 +496,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -525,17 +527,17 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write(path_out+'ESPRESSO_S2D_BLAZE_FP_FP_A.fits S2D_BLAZE_FP_FP_A')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_S2D_BLAZE_FP_FP_B.fits S2D_BLAZE_FP_FP_B')
-    outF.write("\n")    
+    outF.write("\n")
     outF.write(static_dict['STATIC_DLL_MATRIX_A']+'   STATIC_DLL_MATRIX_A')
     outF.write("\n")
     outF.write(static_dict['STATIC_DLL_MATRIX_B']+'   STATIC_DLL_MATRIX_B')
     outF.write("\n")
     outF.write(static_dict['STATIC_WAVE_MATRIX_A']+'   STATIC_WAVE_MATRIX_A')
     outF.write("\n")
-    outF.write(static_dict['STATIC_WAVE_MATRIX_B']+'   STATIC_WAVE_MATRIX_B')     
+    outF.write(static_dict['STATIC_WAVE_MATRIX_B']+'   STATIC_WAVE_MATRIX_B')
     outF.close()
 
-    
+
     outF = open(outpath+"CONTAM.txt", "w")
     for line in contam_list:
         outF.write(line)
@@ -546,7 +548,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -573,7 +575,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(static_dict['INST_CONFIG']+'   INST_CONFIG')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -605,7 +607,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -640,7 +642,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
         outF.write(line)
         outF.write("\n")
     outF.close()
-    
+
     outF = open(outpath+"SCI_OBJ_part2.txt", "w")
     outF.write(static_dict['CCD_GEOM']+'   CCD_GEOM')
     outF.write("\n")
@@ -657,7 +659,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')   
+    outF.write(path_out+'ESPRESSO_hot_pixels.fits HOT_PIXEL_MASK')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_bad_pixels.fits BAD_PIXEL_MASK')
     outF.write("\n")
@@ -678,7 +680,7 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write(path_out+'ESPRESSO_BLAZE_B.fits BLAZE_B')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_S2D_BLAZE_THAR_FP_A.fits S2D_BLAZE_THAR_FP_A')
-    outF.write("\n")    
+    outF.write("\n")
     outF.write(path_out+'ESPRESSO_S2D_BLAZE_THAR_FP_B.fits S2D_BLAZE_THAR_FP_B')
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_WAVE_MATRIX_A.fits WAVE_MATRIX_FP_THAR_B')
@@ -695,11 +697,11 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
     outF.write("\n")
     outF.write(path_out+'ESPRESSO_REL_EFF_B.fits REL_EFF_B')
     outF.write("\n")
-    outF.write(path_out+'ESPRESSO_ABS_EFF_A.fits ABS_EFF_A')    
+    outF.write(path_out+'ESPRESSO_ABS_EFF_A.fits ABS_EFF_A')
     outF.close()
-    
-    
-    #==============================================================================================#    
+
+
+    #==============================================================================================#
     #==============================================================================================#
     #This is the end of the create_sof script. What follows are three small utility functions, after
     #which there is a set of wrappers for the esorex recipes.
@@ -710,11 +712,11 @@ def create_sof(inpath,outpath,path_cdb,binning,sky=True):
 
 
 
-    
+
 def move_to(filename,outpath,newname=None):
     import pdb
-    """This short script moves a file at location filename to the folder outpath. 
-    If the newname keyword is set to a string, the file will also be renamed in the process. 
+    """This short script moves a file at location filename to the folder outpath.
+    If the newname keyword is set to a string, the file will also be renamed in the process.
     This moving overwrites existing files."""
     #I was lazy to type shutil.move all the time...
     import shutil
@@ -723,7 +725,7 @@ def move_to(filename,outpath,newname=None):
     else:
         shutil.move(filename,outpath+newname)
 
-        
+
 def clean_trash():
     """This program deletes left-over files at the end of a recipe."""
     import os
@@ -751,12 +753,12 @@ def check_files_exist(sof_file):
             print("  3. That previous recipes produced the right output files, and that these were moved to the right (outpath) folder.")
             print("  4. That the recipe path file file was created correctly by create_sof (i.e. without typos).")
             sys.exit()
-                
 
 
 
-    
-    #==============================================================================================#    
+
+
+    #==============================================================================================#
     #==============================================================================================#
     #What follows are the wrappers for the esorex recipes. These are executed one by one when
     #calling this script, all the way at the end of this file.
@@ -767,7 +769,7 @@ def check_files_exist(sof_file):
 
 
 
-                
+
 def master_bias(outpath):
     """This is a wrapper for the mbias recipe."""
     import os
@@ -789,19 +791,19 @@ def master_dark(outpath):
     move_to('ESPRESSO_hot_pixels.fits',outpath)
     move_to('esorex.log',outpath,newname='esorex_masterdark.log')
     clean_trash()
-    
+
 
 def bad_pixels(outpath):
     """This is a wrapper for the led_ff recipe."""
     import os
     print('==========>>>>> CREATING BAD PIXEL MAP<<<<<==========')
-    check_files_exist(outpath+"LED.txt")    
+    check_files_exist(outpath+"LED.txt")
     os.system("esorex espdr_led_ff "+outpath+"LED.txt")
     move_to('ESPRESSO_bad_pixels.fits',outpath)
     move_to('esorex.log',outpath,newname='esorex_badpixels.log')
     clean_trash()
 
-    
+
 def orderdef(outpath):
     """This is a wrapper for the orderdef recipe."""
     import os
@@ -812,7 +814,7 @@ def orderdef(outpath):
     move_to('ESPRESSO_ORDER_TABLE_B.fits',outpath)
     move_to('esorex.log',outpath,newname='esorex_orderdef.log')
     clean_trash()
-    
+
 def master_flat(outpath):
     """This is a wrapper for the mflat recipe."""
     import os
@@ -838,7 +840,7 @@ def wave_FP_FP(outpath):
     import os
     print('==========>>>>> CREATE WAVE FP_FP <<<<<==========')
     check_files_exist(outpath+'WAVE_FP_FP.txt')
-    os.system("esorex espdr_wave_FP "+outpath+"WAVE_FP_FP.txt")   
+    os.system("esorex espdr_wave_FP "+outpath+"WAVE_FP_FP.txt")
     move_to('ESPRESSO_S2D_FP_FP_A.fits',outpath)
     move_to('ESPRESSO_S2D_FP_FP_B.fits',outpath)
     move_to('ESPRESSO_S2D_BLAZE_FP_FP_A.fits',outpath)
@@ -867,9 +869,9 @@ def wave_FP_TH(outpath):
     move_to('ESPRESSO_WAVE_MATRIX_B.fits',outpath)
     move_to('ESPRESSO_WAVE_TABLE_B.fits',outpath)
     move_to('ESPRESSO_THAR_LINE_TABLE_B.fits',outpath)
-    move_to('esorex.log',outpath,newname='esorex_wave_fp_thar.log')    
+    move_to('esorex.log',outpath,newname='esorex_wave_fp_thar.log')
     clean_trash
-    
+
 def wave_TH_FP(outpath):
     """This is a wrapper for the wave_THAR_FP recipe."""
     import os
@@ -888,14 +890,14 @@ def wave_TH_FP(outpath):
     move_to('ESPRESSO_WAVE_MATRIX_A.fits',outpath)
     move_to('ESPRESSO_WAVE_TABLE_A.fits',outpath)
     move_to('ESPRESSO_THAR_LINE_TABLE_A.fits',outpath)
-    move_to('esorex.log',outpath,newname='esorex_wave_fp_thar.log')    
+    move_to('esorex.log',outpath,newname='esorex_wave_fp_thar.log')
     clean_trash()
 
 def contamination(outpath):
     """This is a wrapper for the contam recipe."""
     import os
     print('==========>>>>> CREATE CROSS-FIBER CONTAMINATION FRAMES <<<<<==========')
-    check_files_exist(outpath+'CONTAM.txt')   
+    check_files_exist(outpath+'CONTAM.txt')
     os.system('esorex espdr_cal_contam '+outpath+'CONTAM.txt')
     move_to('ESPRESSO_CONTAM_FP_B.fits',outpath)
     move_to('ESPRESSO_CONTAM_S2D_A.fits',outpath)
@@ -907,19 +909,19 @@ def relative_efficiency(outpath):
     """This is a wrapper for the eff_ab recipe."""
     import os
     print('==========>>>>> CREATE RELATIVE FIBER EFFICIENCY FRAMES <<<<<==========')
-    check_files_exist(outpath+"EFF_SKY.txt")   
+    check_files_exist(outpath+"EFF_SKY.txt")
     os.system('esorex espdr_cal_eff_ab '+outpath+"EFF_SKY.txt")
     move_to('ESPRESSO_S2D_BLAZE_EFF_A.fits',outpath)
     move_to('ESPRESSO_S2D_BLAZE_EFF_B.fits',outpath)
     move_to('ESPRESSO_REL_EFF_B.fits',outpath)
-    move_to('esorex.log',outpath,newname='esorex_cal_eff_ab.log')    
+    move_to('esorex.log',outpath,newname='esorex_cal_eff_ab.log')
     clean_trash()
 
 def flux_calibration(outpath):
     """This is a wrapper for the  recipe."""
     import os
     print('==========>>>>> CREATE FLUX CALIBRATION FRAMES <<<<<==========')
-    check_files_exist(outpath+"FLUX_STD.txt")   
+    check_files_exist(outpath+"FLUX_STD.txt")
     os.system('esorex espdr_cal_flux '+outpath+"FLUX_STD.txt")
     move_to('ESPRESSO_S2D_STD_A.fits',outpath)
     move_to('ESPRESSO_S1D_STD_A.fits',outpath)
@@ -945,7 +947,7 @@ def reduce_science(outpath):
     N=len(F['paths'])
     if not os.path.exists(outpath+'SCIENCE_PRODUCTS'):
         os.mkdir(outpath+'SCIENCE_PRODUCTS')
-        
+
     for i in range(N):
         shutil.copy(outpath+'SCI_OBJ_part2.txt',outpath+'SCI_OBJ_combined.txt')
         filename=os.path.splitext(os.path.basename(F['paths'][i]))[0]
@@ -956,9 +958,9 @@ def reduce_science(outpath):
         print('>>>> RUNNING FILE '+F['paths'][i])
         os.system('esorex espdr_sci_red --background_sw=off '+outpath+'SCI_OBJ_combined.txt')
         move_to('ESPRESSO_CCF_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_A.fits')
-        move_to('ESPRESSO_CCF_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_B.fits')        
+        move_to('ESPRESSO_CCF_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_B.fits')
         move_to('ESPRESSO_CCF_RESIDUALS_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_RESIDUALS_A.fits')
-        move_to('ESPRESSO_CCF_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_SKYSUB_A.fits') 
+        move_to('ESPRESSO_CCF_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_SKYSUB_A.fits')
         move_to('ESPRESSO_S1D_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S1D_A.fits')
         move_to('ESPRESSO_S1D_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S1D_B.fits')
         move_to('ESPRESSO_S1D_FLUXCAL_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S1D_FLUXCAL_A.fits')
@@ -969,7 +971,7 @@ def reduce_science(outpath):
         move_to('ESPRESSO_S2D_BLAZE_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_BLAZE_A.fits')
         move_to('ESPRESSO_S2D_BLAZE_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_BLAZE_B.fits')
         move_to('ESPRESSO_S2D_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_S2D_SKYSUB_A.fits')
-    
+
         if sky:#The following files dont exist if spectra were taken with the FP on fiber B:
             move_to('ESPRESSO_CCF_B.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_B.fits')
             move_to('ESPRESSO_CCF_SKYSUB_A.fits',outpath+'SCIENCE_PRODUCTS/',newname=filename+'_CCF_SKYSUB_A.fits')
@@ -988,8 +990,8 @@ def reduce_science(outpath):
 
 
 
-        
-    
+
+
 inpath='/run/media/jens/SAMSUNG/Raw_data/data_with_raw_calibs/'
 outpath='/run/media/jens/10AC118E10AC118E/Ilm/Echelle_reduction/ESPRESSO/reduced/'
 path_cdb='/home/jens/ESO_PIPELINES/calib/espdr-2.2.1/'
@@ -1008,7 +1010,3 @@ contamination(outpath)
 relative_efficiency(outpath)
 flux_calibration(outpath)
 reduce_science(outpath)
-
-
-
-
