@@ -890,7 +890,7 @@ def wave_TH_FP(outpath):
     """This is a wrapper for the wave_THAR_FP recipe."""
     import os
     print('==========>>>>> CREATE WAVE THAR_FP<<<<<==========')
-    check_files_exist(outpath+'WAVE_TH_FP.txt')
+    check_files_exist(outpath/'WAVE_TH_FP.txt')
     os.system("esorex espdr_wave_THAR "+str(outpath/"WAVE_TH_FP.txt"))
     move_to('ESPRESSO_AIR_DLL_MATRIX_A.fits',outpath)
     move_to('ESPRESSO_AIR_WAVE_MATRIX_A.fits',outpath)
@@ -912,7 +912,7 @@ def contamination(outpath):
     import os
     print('==========>>>>> CREATE CROSS-FIBER CONTAMINATION FRAMES <<<<<==========')
     check_files_exist(outpath/'CONTAM.txt')
-    os.system('esorex espdr_cal_contam '+str(outpath+'CONTAM.txt'))
+    os.system('esorex espdr_cal_contam '+str(outpath/'CONTAM.txt'))
     move_to('ESPRESSO_CONTAM_FP_B.fits',outpath)
     move_to('ESPRESSO_CONTAM_S2D_A.fits',outpath)
     move_to('ESPRESSO_CONTAM_S2D_B.fits',outpath)
