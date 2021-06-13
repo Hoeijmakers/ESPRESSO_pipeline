@@ -1010,6 +1010,7 @@ parser.add_argument('inpath',metavar='path',type=str,help='The input path')
 parser.add_argument('outpath',metavar='path',type=str,help='The output folder')
 parser.add_argument('binning',metavar='binning',type=str,help='The detector binning mode',default = '2x1',nargs='?')
 parser.add_argument('FP',metavar='FP',type=str,help='Fiber b on sky?',default = '', nargs='?')
+parser.add_argument('scired_only',metavar='scired_only',type=str,help='Only run SCIRED?',default = '0', nargs='?')
 args = parser.parse_args()
 globals().update(vars(args))
 
@@ -1033,11 +1034,10 @@ if len(FP) == 0 or FP.lower()=='sky':
 else:
     sky = False
 
-
+scired_only = bool(int(scired_only))
 #Run the whole cascade:
-
+create_sof(inpath,outpath,binning,sky=sky)
 if not scired_only:
-    create_sof(inpath,outpath,binning,sky=sky)
     master_bias(outpath)
     master_dark(outpath)
     bad_pixels(outpath)
