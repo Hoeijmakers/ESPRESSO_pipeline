@@ -155,7 +155,7 @@ def create_sof(inpath,outpath,binning,sky=True):
     from pathlib import Path
     import glob
 
-    path_out=str(outpath)
+    path_out=str(outpath)+'/'
 
 
     #The rest works automatically.
