@@ -337,8 +337,8 @@ def create_sof(inpath,outpath,binning,sky=True):
     for line in bias_list:
         outF.write(line)
         outF.write("\n")
-    import pdb
-    pdb.set_trace()
+    # import pdb
+    # pdb.set_trace()
     outF.write(static_dict['CCD_GEOM']+'   CCD_GEOM')
     outF.write("\n")
     outF.write(static_dict['INST_CONFIG']+'   INST_CONFIG')
@@ -352,7 +352,7 @@ def create_sof(inpath,outpath,binning,sky=True):
     outF.write("\n")
     outF.write(static_dict['INST_CONFIG']+'   INST_CONFIG')
     outF.write("\n")
-    outF.write(path_out/'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
+    outF.write(path_out+'ESPRESSO_master_bias_res.fits MASTER_BIAS_RES')
     outF.close()
 
     outF = open(outpath/"LED.txt", "w")
