@@ -972,7 +972,6 @@ def reduce_science(outpath):
         print('>>>> RUNNING FILE '+F['paths'][i])
         os.system('esorex espdr_sci_red --background_sw=off '+str(outpath/'SCI_OBJ_combined.txt'))
         move_to('ESPRESSO_CCF_A.fits',outpath/'SCIENCE_PRODUCTS/',newname=filename+'_CCF_A.fits')
-        move_to('ESPRESSO_CCF_B.fits',outpath/'SCIENCE_PRODUCTS/',newname=filename+'_CCF_B.fits')
         move_to('ESPRESSO_CCF_RESIDUALS_A.fits',outpath/'SCIENCE_PRODUCTS/',newname=filename+'_CCF_RESIDUALS_A.fits')
         move_to('ESPRESSO_S1D_A.fits',outpath/'SCIENCE_PRODUCTS/',newname=filename+'_S1D_A.fits')
         move_to('ESPRESSO_S1D_B.fits',outpath/'SCIENCE_PRODUCTS/',newname=filename+'_S1D_B.fits')
