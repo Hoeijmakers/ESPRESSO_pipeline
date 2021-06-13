@@ -988,15 +988,33 @@ def reduce_science(outpath):
 
 
 
+import argparse
+from pathlib import Path
+import os.path
+
+parser = argparse.ArgumentParser(description='Provide the path to the input and output file directories and the binning mode (1x1, 2x1, etc).')
+parser.add_argument('inpath',metavar='path',type=str,help='The input path')
+parser.add_argument('outpath',metavar='path',type=str,help='The output folder')
+parser.add_argument('binning',metavar='binning',type=str,help='The detector binning mode')
+args = parser.parse_args()
+globals().update(vars(args))
 
 
+inpath = Path(inpath)
+outpath= Path(outpath)
 
 
-inpath='/run/media/jens/SAMSUNG/Raw_data/data_with_raw_calibs/'
-outpath='/run/media/jens/10AC118E10AC118E/Ilm/Echelle_reduction/ESPRESSO/reduced/'
-path_cdb='/home/jens/ESO_PIPELINES/calib/espdr-2.2.1/'
-binning='2x1'
+#Test input:
+if not os.path.isdir(inpath):
+    raise FileExistsError(f"Input directory {inpath} does not exist or is not a directory.")
+if not os.path.isdir(outpath):
+    print(f"Output directory {outpath} does not exist. Making it now.")
+    os.mkdirs(outpath)
+if not binning in ['1x1','2x1','4x2']:
+    raise InputError(f"Binning should be any of 1x1, 2x1 or 4x2 ({binning}).")
 
+
+#Run the whole cascade:
 create_sof(inpath,outpath,path_cdb,binning)
 master_bias(outpath)
 master_dark(outpath)
