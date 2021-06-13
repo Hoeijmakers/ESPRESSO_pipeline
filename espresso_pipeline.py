@@ -6,7 +6,7 @@
 
 #IMPORTANT: the execution of this code generates a lot of temporary files that are later
 #removed (by-product of using ESOREX). You are adviced to run this python script in an
-#empty work folder (not the output folder).
+#empty work folder that is not equal to the output folder.
 
 #First, you need to make sure that both ESOREX and the ESPRESSO pipeline are installed on
 #your system. To check whether ESOREX is installed correctly, you can open a terminal and type:
@@ -22,40 +22,58 @@
 
 #This will return a list of all the recipes installed on your system. It should include such recipes
 #as espdr_mdark, espdr_mbias, and a bunch of others starting with espdr.
-#This script was built around version 1.2.2 of the ESPRESSO pipeline and was upgraded to run with version 2.2.1 ***
+#This script was built around version 2.2.1 of the ESPRESSO pipeline and was upgraded to run with
+#versions 2.2.2 and 2.2.3. ***
 
-#A recipe needs to be called with a single argument: The path to a text-file that lists the locations
-#of the files necessary for the execution of the script. For example, the espdr_mbias recipe needs to
-#be fed by a list that details the locations of the BIAS frames. These files are called "SOF files".
+#Within ESOREX, a recipe needs to be called with a single argument: The path to a text-file that
+#lists the locations of the files necessary for the execution of the script. For example, the
+#espdr_mbias recipe needs to be fed by a list that details the locations of the BIAS frames. These
+#files are called "SOF files".
 
 #The script assumes that the user has created *one* folder on their system that contains *all*
 #of the relevant frames *of a single observing mode*. ESPRESSO has multiple observing modes,
 #varying the spectral resolution, how many UTs were used and the detector binning.
 
-#This script assumes that observations are taken in SINGLEHR mode. The user can choose the binning
-#factor; but all the relevant data of a single mode needs to be in the same folder, *without any files
-#obtained in different modes, if any*! I did not do the effort of checking all the relevant keywords
-#of every single file... so make sure you do this right.
+#This script assumes that observations are taken in SINGLEHR mode, and that all science observations
+#use the same sequence of calibration files (i.e. all use the same master bias, master flat, etc).
+#The user can choose the binning factor; but all the relevant data of a single mode needs to be in
+#the same folder, *without any  files obtained in different modes, if any*! I did not do the effort
+#of checking all the relevant keywords of every single file... so make sure you do this right.
 
-#Version 2 of the ESPRESSO pipeline no longer contains all static calibration files. Instead, these are provided
-#by the ESO calselector tool when downloading the data. This means that you NEED to use the ESO calselector to
-# download the data.
+#This script was built around version 2 of the ESPRESSO pipeline, which no longer uses locally saved
+#static calibration files. Instead, all necessary files are provided by the ESO calselector tool
+#when downloading the data. This means that downloading the data using the ESO calselector is
+#essentially the only reasonable way to obtain all the data that you need.
 
-#These two constraints imply the following work flow:
-#1) In the RAW data archive, find a science observing sequence (i.e. during a single night, obtained in the same mode/setup) that you would like to reduce.
-#2) Request all these Science frames, and enable the calselector to provide them + associated raw calibrations.
-#3) Download these to a single folder (for an exoplanet transit observation, this can easily amount to >10GB).
-#4) Below (at the end of the script), provide the path to this folder as inpath, and the path to a folder as outpath.
-#5) For some reason, the calselector does not select the CONTAM,OFF,FP calibration files. These are obtained every night in 1x1 and 2x1 binning
-# modes. To download these, you need to query the entire night of observations with the Raw data selection form, and find it (ctrl-F) to
-#request and download it manually. Notice that there might be multiple CONTAM,OFF,FP files, but only one can
-#be used. Likely either will work (as long as they are in the right binning).
-#5) Make sure that your calib folder is set correctly, and run this script.
+#These two facts imply the following work flow:
+#1) In the raw data archive, find a science observing sequence (i.e. during a single night,
+#obtained in the same mode/setup) that you would like to reduce.
+#2) Request all these SCIENCE frames, and enable the calselector to provide them + associated raw
+#calibrations.
+#3) Download these to a single folder (for an exoplanet transit observation, this can easily
+#amount to >10GB), to be used as 'input directory' (see below).
+#4) For some reason, the calselector does not select the CONTAM,OFF,FP calibration files. These
+#are obtained every night in several obsering modes. To download these, you need to query the
+#entire night of observations with the raw data selection form, and find it (ctrl-F) to
+#request and download it manually, or request calibration frames of the type CONTAM,OFF,FP
+#specifically. Notice that there might be multiple CONTAM,OFF,FP files with the same binning, but
+#only one of these will be used. Likely either will work, as long as they are using the correct
+#binning.
+#5) Determine whether the observations were taken with the secondary fiber B on sky or with the
+#Fabry-Perot
+#6) Run the script in the terminal as >>>python3 espresso_pipeline.py inpath outpath binning fiber_B
+#The final two inputs (binning and fiber B) are assumed to be 2x1 and sky by default, and can be
+#omitted. So >>>python3 espresso_pipeline.py inpath outpath assumes a dataset taken in 2x1 mode and
+#with fiber B on sky. Otherwise, >>>python3 espresso_pipeline.py inpath outpath 1x1 FP is valid
+#input.
 
 
-#The script first creates the necessary SOF files with which the recipes are called, before executing
-#the entire cascade one recipe after another, all the while moving the necessary intermediate products
-#to the output folder.
+
+
+
+#The script first creates the necessary SOF files with which the recipes are called, before
+#executing the entire cascade one recipe after another, all the while moving the necessary
+#intermediate products to the output folder.
 
 
 #That's all nice and well, but be aware that the pipeline requires a large amount of both *computer
@@ -114,7 +132,7 @@
 #==============================================================================================#
 
 
-def create_sof(inpath,outpath,path_cdb,binning,sky=True):
+def create_sof(inpath,outpath,binning,sky=True):
     """This script creates the file association lists (sof files) that are the main inputs
     to the pipeline recipes when called with esorex. The user provides the path of the raw data files
     (inpath) as downloaded from the ESO archive. These must be sorted by instrument mode
@@ -991,11 +1009,13 @@ def reduce_science(outpath):
 import argparse
 from pathlib import Path
 import os.path
+import sys
 
 parser = argparse.ArgumentParser(description='Provide the path to the input and output file directories and the binning mode (1x1, 2x1, etc).')
 parser.add_argument('inpath',metavar='path',type=str,help='The input path')
 parser.add_argument('outpath',metavar='path',type=str,help='The output folder')
-parser.add_argument('binning',metavar='binning',type=str,help='The detector binning mode')
+parser.add_argument('binning',metavar='binning',type=str,help='The detector binning mode',default = '2x1',nargs='?')
+parser.add_argument('FP',metavar='FP',type=str,help='Fiber b on sky?',default = '', nargs='?')
 args = parser.parse_args()
 globals().update(vars(args))
 
@@ -1007,15 +1027,21 @@ outpath= Path(outpath)
 #Test input:
 if not os.path.isdir(inpath):
     raise FileExistsError(f"Input directory {inpath} does not exist or is not a directory.")
+if str(inpath) == str(outpath):
+    raise ValueError("Input and output directories should not be the same.")
 if not os.path.isdir(outpath):
     print(f"Output directory {outpath} does not exist. Making it now.")
-    os.mkdirs(outpath)
+    os.makedirs(outpath)
 if not binning in ['1x1','2x1','4x2']:
-    raise InputError(f"Binning should be any of 1x1, 2x1 or 4x2 ({binning}).")
+    raise ValueError(f"Binning should be any of 1x1, 2x1 or 4x2 ({binning}).")
+if len(FP) == 0 or FP.lower()=='sky':
+    sky = True
+else:
+    sky = False
 
 
 #Run the whole cascade:
-create_sof(inpath,outpath,path_cdb,binning)
+create_sof(inpath,outpath,binning,sky=sky)
 master_bias(outpath)
 master_dark(outpath)
 bad_pixels(outpath)
